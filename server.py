@@ -1,9 +1,11 @@
 
 import http.server
 import matplotlib.pyplot as plt
-
+from math import pi
 
 class Server (http.server.SimpleHTTPRequestHandler):
+
+    X=[i/100 for i in range(-1000,1000)]
 
     def _200(self,message:str):
         self.send_response(200)
@@ -50,7 +52,12 @@ class Server (http.server.SimpleHTTPRequestHandler):
             query=self.rfile.read(int(self.headers['Content-Length'])).decode()
             # Plot the function
             plt.clf()
-            plt.plot([x for x in range(-10,10)], [eval(query) for x in range(-10,10)])
+            query=query.lower().replace("x","{}")
+            y=[]
+            for x in self.X:
+                a=query.format(f"({x})")
+                exec(f"y.append({a})")
+            plt.plot(self.X,y)
             # Save the plot
             plt.savefig("images/plot.png")
             self._200_file("images/plot.png")
